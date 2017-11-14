@@ -8,10 +8,11 @@ import moment from 'moment';
 import groupBy from 'lodash/groupBy';
 import { ContainerQuery } from 'react-container-query';
 import classNames from 'classnames';
-import styles from './BasicLayout.less';
 import HeaderSearch from '../components/HeaderSearch';
 import NoticeIcon from '../components/NoticeIcon';
 import GlobalFooter from '../components/GlobalFooter';
+import NotFound from '../routes/Exception/404';
+import styles from './BasicLayout.less';
 
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -53,8 +54,10 @@ class BasicLayout extends React.PureComponent {
   getChildContext() {
     const { location, navData, getRouteData } = this.props;
     const routeData = getRouteData('BasicLayout');
-    const menuData = navData.reduce((arr, current) => arr.concat(current.children), []);
+    const firstMenuData = navData.reduce((arr, current) => arr.concat(current.children), []);
+    const menuData = this.getMenuData(firstMenuData, '');
     const breadcrumbNameMap = {};
+
     routeData.concat(menuData).forEach((item) => {
       breadcrumbNameMap[item.path] = item.name;
     });
@@ -80,6 +83,16 @@ class BasicLayout extends React.PureComponent {
         type: 'login/logout',
       });
     }
+  }
+  getMenuData = (data, parentPath) => {
+    let arr = [];
+    data.forEach((item) => {
+      if (item.children) {
+        arr.push({ path: `${parentPath}/${item.path}`, name: item.name });
+        arr = arr.concat(this.getMenuData(item.children, `${parentPath}/${item.path}`));
+      }
+    });
+    return arr;
   }
   getDefaultCollapsedSubMenus(props) {
     const currentMenuSelectedKeys = [...this.getCurrentMenuSelectedKeys(props)];
@@ -137,7 +150,11 @@ class BasicLayout extends React.PureComponent {
                 {icon}<span>{item.name}</span>
               </a>
             ) : (
-              <Link to={itemPath} target={item.target}>
+              <Link
+                to={itemPath}
+                target={item.target}
+                replace={itemPath === this.props.location.pathname}
+              >
                 {icon}<span>{item.name}</span>
               </Link>
             )
@@ -338,7 +355,8 @@ class BasicLayout extends React.PureComponent {
                   )
                 )
               }
-              <Redirect to="/dashboard/analysis" />
+              <Redirect exact from="/" to="/dashboard/analysis" />
+              <Route component={NotFound} />
             </Switch>
             <GlobalFooter
               links={[{

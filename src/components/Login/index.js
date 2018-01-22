@@ -89,7 +89,7 @@ class Login extends Component {
       }
     });
     return (
-      <div className={classNames(className, styles.main)}>
+      <div className={classNames(className, styles.login)}>
         <Form onSubmit={this.handleSubmit}>
           {
             tabs.length ? (
@@ -100,11 +100,11 @@ class Login extends Component {
                   activeKey={type}
                   onChange={this.onSwitch}
                 >
-                  { TabChildren }
+                  {TabChildren}
                 </Tabs>
-                { otherChildren }
+                {otherChildren}
               </div>
-              ) : children
+            ) : children
           }
         </Form>
       </div>

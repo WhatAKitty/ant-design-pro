@@ -70,13 +70,30 @@ const proxy = {
   'GET /api/profile/advanced': getProfileAdvancedData,
   'POST /api/login/account': (req, res) => {
     const { password, userName, type } = req.body;
+    if(password === '888888' && userName === 'admin'){
+      res.send({
+        status: 'ok',
+        type,
+        currentAuthority: 'admin'
+      });
+      return ;
+    }
+    if(password === '123456' && userName === 'user'){
+      res.send({
+        status: 'ok',
+        type,
+        currentAuthority: 'user'
+      });
+      return ;
+    }
     res.send({
-      status: password === '888888' && userName === 'admin' ? 'ok' : 'error',
+      status: 'error',
       type,
+      currentAuthority: 'guest'
     });
   },
   'POST /api/register': (req, res) => {
-    res.send({ status: 'ok' });
+    res.send({ status: 'ok', currentAuthority: 'user' });
   },
   'GET /api/notices': getNotices,
   'GET /api/500': (req, res) => {
@@ -101,6 +118,15 @@ const proxy = {
     res.status(403).send({
       "timestamp": 1513932555104,
       "status": 403,
+      "error": "Unauthorized",
+      "message": "Unauthorized",
+      "path": "/base/category/list"
+    });
+  },
+  'GET /api/401': (req, res) => {
+    res.status(401).send({
+      "timestamp": 1513932555104,
+      "status": 401,
       "error": "Unauthorized",
       "message": "Unauthorized",
       "path": "/base/category/list"
